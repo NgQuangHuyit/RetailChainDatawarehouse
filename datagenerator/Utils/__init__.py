@@ -15,12 +15,6 @@ def randomDateFromTo(start: date, end: date):
         random_days = random.randint(0, delta.days)
         return start + timedelta(days=random_days)
 
-def read_csv(file_path , skiprows=0):
-    """
-    read csv file and return pandas dataframe
-    """
-    df = pd.read_csv(file_path, skiprows=skiprows)
-    return map(lambda a:tuple(a.values()), df.to_dict(orient='records'))
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ class EmployeeProvider(BaseProvider):
     def jobTitle(self):
         return random.choices(self.jobTitles, weights=[50, 10, 10, 5], k=1)[0]
     
-
-fake = Faker()
-fake.add_provider(EmployeeProvider)
-print(fake.jobTitle())
+if __name__ == "__main__":
+    fake = Faker()
+    fake.add_provider(EmployeeProvider)
+    print(fake.jobTitle())

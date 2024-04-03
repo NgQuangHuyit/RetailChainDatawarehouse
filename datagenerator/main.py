@@ -4,7 +4,7 @@ from config import read_config_file
 from tqdm import tqdm
 from faker import Faker
 from typing import List
-from Utils import randomDateFromTo, read_csv
+from Utils import randomDateFromTo
 from datetime import date
 from mysql.connector import MySQLConnection
 from CustomProvider import EmployeeProvider, PromotionProvider
@@ -119,24 +119,6 @@ def genCustomerData(records_number=1000, chunk_size=1000):
                                 email = VALUES(email),
                                 cityID = VALUES(cityID)""", 
                            ls[i:i+chunk_size])
-    # with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
-    #     cursor.executemany("""
-    #                        INSERT INTO customers (
-    #                             customerID,
-    #                             firstName,
-    #                             lastName,
-    #                             phone,
-    #                             email,
-    #                             cityID
-    #                        )
-    #                        VALUES (%s, %s, %s, %s, %s, %s)
-    #                        ON DUPLICATE KEY UPDATE
-    #                             firstName = VALUES(firstName),
-    #                             lastName = VALUES(lastName),
-    #                             phone = VALUES(phone),
-    #                             email = VALUES(email),
-    #                             cityID = VALUES(cityID)""", 
-    #                        (ls))
 
 def genBranchesData(records_number=600):
     with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
@@ -252,82 +234,6 @@ def genEmployeeData():
                                 ls)
     return ls
 
-def genOrdersData(records_number=1000):
-    productIDs = [row[0] for row in readTableColumns("products", ["productID"])]
-    customerIDs = [row[0] for row in readTableColumns("customers", ["customerID"])]
-    saleEmpIDs = [row[0] for row in readTableColumns("employees", ["employeeID"])]
-    branchIDs = [row[0] for row in readTableColumns("branches", ["branchID"])]
-    promotionIDs = [row[0] for row in readTableColumns("promotions", ["promotionID"])]
-    promotionIDs = promotionIDs + [None] * len(promotionIDs)
-    productPrice = {}
-    for row in readTableColumns("products", ["productID",  "sellingPrice"]):
-        productPrice[row[0]] = float(row[1])
-    cnt = 1
-    with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
-        for _ in tqdm(range(records_number)):
-            orderID = "OD{:0>8}".format(_)
-            promotionID = random.choice(promotionIDs)
-            customerID = random.choice(customerIDs)
-            saleEmpID = random.choice(saleEmpIDs)
-            branchID = random.choice(branchIDs)
-            orderDate = randomDateFromTo(start=date(2021, 1, 1), end=date(2023, 12, 31))
-            totalAmt = 0
-            orderDetails = []
-            for __ in range(random.randint(1, 10)):
-                orderDetailID = cnt
-                productID = random.choice(productIDs)
-                quantity = random.randint(1, 10)
-                unitPrice = productPrice[productID]
-                discount = random.choices([0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4], weights=[50, 10, 10, 10, 10, 5, 5], k=1)[0]
-                subTotal = unitPrice * quantity * (1 - discount)
-                totalAmt += subTotal
-                cnt += 1
-                orderDetails.append(tuple([orderDetailID, orderID, productID, quantity,discount, unitPrice, subTotal]))
-            cursor.execute("""
-                           INSERT INTO saleOrders (
-                                orderID,
-                                promotionID,
-                                customerID,
-                                employeeID,
-                                branchID,
-                                orderDate,
-                                totalAmount
-                           )
-                           VALUES (%s, %s, %s, %s, %s, %s, %s)
-                            ON DUPLICATE KEY UPDATE
-                                  promotionID = VALUES(promotionID),
-                                  customerID = VALUES(customerID),
-                                  employeeID = VALUES(employeeID),
-                                  branchID = VALUES(branchID),
-                                  orderDate = VALUES(orderDate),
-                                  totalAmount = VALUES(totalAmount)
-                           """, 
-                           (orderID, 
-                            promotionID, 
-                            customerID, 
-                            saleEmpID, 
-                            branchID, 
-                            orderDate.strftime("%Y-%m-%d"), 
-                            totalAmt))
-            cursor.executemany("""
-                               INSERT INTO orderDetails (
-                                    orderDetailID,
-                                    orderID,
-                                    productID,
-                                    quantity,
-                                    discount,
-                                    unitPrice,
-                                    subTotal)
-                               VALUES (%s, %s, %s, %s, %s, %s, %s)
-                               ON DUPLICATE KEY UPDATE
-                                    orderID = VALUES(orderID),
-                                    productID = VALUES(productID),
-                                    quantity = VALUES(quantity),
-                                    discount = VALUES(discount),
-                                    unitPrice = VALUES(unitPrice),
-                                    subTotal = VALUES(subTotal)""", 
-                               orderDetails)
-
 def genOrdersData(records_number=1000, chunks_size=1000):
     customerIDs = [row[0] for row in readTableColumns("customers", ["customerID"])]
     saleEmpIDs = [row[0] for row in readTableColumns("employees", ["employeeID"])]
@@ -369,27 +275,7 @@ def genOrdersData(records_number=1000, chunks_size=1000):
                                       totalAmount = VALUES(totalAmount)
                                """, 
                                orders[i:i+chunks_size])
-    # with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
-    #     cursor.executemany("""
-    #                        INSERT INTO saleOrders (
-    #                             orderID,
-    #                             promotionID,
-    #                             customerID,
-    #                             employeeID,
-    #                             branchID,
-    #                             orderDate,
-    #                             totalAmount
-    #                        )
-    #                        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    #                         ON DUPLICATE KEY UPDATE
-    #                               promotionID = VALUES(promotionID),
-    #                               customerID = VALUES(customerID),
-    #                               employeeID = VALUES(employeeID),
-    #                               branchID = VALUES(branchID),
-    #                               orderDate = VALUES(orderDate),
-    #                               totalAmount = VALUES(totalAmount)
-    #                        """, 
-    #                        orders)
+
         
 
 def genOrderDetailsData(chunk_size=1000):
@@ -439,30 +325,6 @@ def genOrderDetailsData(chunk_size=1000):
                                SET totalAmount = %s
                                WHERE orderID = %s
                                """,orderTotal[i:i+chunk_size])
-    # with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
-    #     cursor.executemany("""
-    #                        INSERT INTO orderDetails (
-    #                             orderDetailID,
-    #                             orderID,
-    #                             productID,
-    #                             quantity,
-    #                             discount,
-    #                             unitPrice,
-    #                             subTotal)
-    #                        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    #                        ON DUPLICATE KEY UPDATE
-    #                             orderID = VALUES(orderID),
-    #                             productID = VALUES(productID),
-    #                             quantity = VALUES(quantity),
-    #                             discount = VALUES(discount),
-    #                             unitPrice = VALUES(unitPrice),
-    #                             subTotal = VALUES(subTotal)""", 
-    #                        orderDetails)
-    #     cursor.executemany("""
-    #                        UPDATE saleOrders
-    #                        SET totalAmount = %s
-    #                        WHERE orderID = %s
-    #                        """,orderTotal)
 
 
 def loadCsvToDatabase(file_path, insert_query, skip_header=True):
@@ -568,21 +430,18 @@ insertAddress = """
         postalCode = VALUES(postalCode)
     """
 
-loadCsvToDatabase("./StaticDataset/colorTbl.csv", insertColor)
-loadCsvToDatabase("./StaticDataset/categoryTbl.csv", insertCategory)
-loadCsvToDatabase("./StaticDataset/productTbl.csv", insertProduct)
 
+if __name__ == "__main__":
+    loadCsvToDatabase("./StaticDataset/colorTbl.csv", insertColor)
+    loadCsvToDatabase("./StaticDataset/categoryTbl.csv", insertCategory)
+    loadCsvToDatabase("./StaticDataset/productTbl.csv", insertProduct)
+    loadCsvToDatabase("./StaticDataset/countryTbl.csv", insertCountry)
+    loadCsvToDatabase("./StaticDataset/cityTbl.csv", insertCity)
+    loadCsvToDatabase("./StaticDataset/addressTbl.csv", insertAddress)
 
-genPromtionData(1000)
-loadCsvToDatabase("./StaticDataset/countryTbl.csv", insertCountry)
-loadCsvToDatabase("./StaticDataset/cityTbl.csv", insertCity)
-loadCsvToDatabase("./StaticDataset/addressTbl.csv", insertAddress)
-
-genCustomerData(100000, chunk_size=200000)
-genBranchesData()
-genEmployeeData()
-
-# genOrdersData(1000000)
-
-genOrdersData(1000000, chunks_size=200000)
-genOrderDetailsData(chunk_size=200000)
+    genPromtionData(1000)
+    genCustomerData(100000, chunk_size=50000)
+    genBranchesData()
+    genEmployeeData()
+    genOrdersData(100000, chunks_size=50000)
+    genOrderDetailsData(chunk_size=100000)
