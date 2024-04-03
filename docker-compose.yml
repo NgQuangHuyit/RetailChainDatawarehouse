@@ -2,17 +2,30 @@ version: '3.1'
 
 services:
   mysql-olpt:
-    image: mysql:5.7
+    image: mysql:latest
     container_name: mysql-olpt
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: QuanLyBanHang
       
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+      - mysql-olpt-data:/var/lib/mysql
     networks:
-      - tmp
+      - common
 
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - common
+volumes:
+  mysql-olpt-data:
+
+networks:
+  common:
+    driver: bridge
   
