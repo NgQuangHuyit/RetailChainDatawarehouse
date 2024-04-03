@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+  mysql-olpt:
+    image: mysql:5.7
+    container_name: mysql-olpt
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: QuanLyBanHang
+      
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - tmp
+
+  
