@@ -440,8 +440,8 @@ if __name__ == "__main__":
     loadCsvToDatabase("./StaticDataset/addressTbl.csv", insertAddress)
 
     genPromtionData(1000)
-    genCustomerData(100000, chunk_size=50000)
+    genCustomerData(500000, chunk_size=100000)
     genBranchesData()
     genEmployeeData()
-    genOrdersData(100000, chunks_size=50000)
+    genOrdersData(1000000, chunks_size=100000)
     genOrderDetailsData(chunk_size=100000)

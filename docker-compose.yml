@@ -22,8 +22,41 @@ services:
       - "8080:8080"
     networks:
       - common
+
+  hadoop-namenode:
+    build:
+      context: ./containers/hadoop-namenode
+      dockerfile: Dockerfile
+    container_name: hadoop-namenode
+    hostname: hadoop-namenode
+    ports:
+      - 9870:9870
+      - 8088:8088
+      - 19888:19888
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    networks:
+      - common
+    volumes:
+      - namenode-data:/hadoop/dfs/name
+
+  hadoop-datanode01:
+    build: 
+      context: ./containers/hadoop-datanode
+      dockerfile: Dockerfile
+    container_name: hadoop-datanode01
+    hostname: hadoop-datanode01
+    environment:
+      - "HADOOP_MASTER=hadoopmaster"
+    networks:
+      - common
+    volumes:
+      - datanode01-data:/hadoop/dfs/data
+    
 volumes:
   mysql-olpt-data:
+  datanode01-data:
+  namenode-data:
 
 networks:
   common:
