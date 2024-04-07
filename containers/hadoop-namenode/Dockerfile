@@ -6,4 +6,7 @@ RUN mkdir /hadoop-data/dfs/name \
 
 COPY /workers /etc/hadoop/workers
 
-CMD ["tail", "-f", "/dev/null"]
+COPY /run.sh /run.sh
+RUN chmod a+x /run.sh
+
+CMD ["/run.sh"]

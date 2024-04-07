@@ -37,6 +37,8 @@ services:
       - CLUSTER_NAME=hadoop-cluster
     networks:
       - common
+    depends_on:
+      - hadoop-datanode01
     volumes:
       - namenode-data:/hadoop/dfs/name
 
@@ -52,6 +54,44 @@ services:
       - common
     volumes:
       - datanode01-data:/hadoop/dfs/data
+
+  spark-master:
+    image: spark-base
+    ports:
+      - 9090:8081
+      - 7077:7077
+    volumes:
+      - ./apps:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-apps
+      - ./data:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-data
+    environment:
+      - SPARK_LOCAL_IP=spark-master
+      - SPARK_WORKLOAD=master
+    networks:
+      - common
+    command: /bin/sh -c "/start-spark.sh"
+
+  spark-worker-a:
+    image: spark-base
+    ports:
+      - 9091:8081
+      - 7000:7000
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker-a
+    volumes:
+      - ./apps:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-apps
+      - ./data:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-data
+    networks:
+      - common
+    command: /bin/sh -c "/start-spark.sh"
+
     
 volumes:
   mysql-olpt-data:
