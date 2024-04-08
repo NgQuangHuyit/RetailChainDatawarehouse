@@ -15,7 +15,7 @@ print("DataFrame:")
 df.show()
 
 # Ghi DataFrame vào HDFS
-hdfs_path = "hdfs://hadoop-namenode:9000/test/demo.csv"
+hdfs_path = "/demo.csv"
 df.write \
     .format("csv") \
     .mode("overwrite") \
