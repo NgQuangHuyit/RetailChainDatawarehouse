@@ -1,25 +1,28 @@
 from pyspark.sql import SparkSession
 
-# Tạo SparkSession
-spark = SparkSession.builder \
-    .appName("Simple Spark App") \
-    .getOrCreate()
 
-# Tạo một DataFrame
-data = [("John", 25), ("Alice", 33), ("Bob", 35)]
-columns = ["Name", "Age"]
-df = spark.createDataFrame(data, columns)
+if __name__ == "__main__":
 
-# Hiển thị DataFrame
-print("DataFrame:")
-df.show()
+        spark = SparkSession.builder \
+                .master("spark://spark-master:7077") \
+                .appName("Ingestion") \
+                .config("spark.jars", "mysql-connector-java-8.0.29.jar") \
+                .getOrCreate()
 
-# Ghi DataFrame vào HDFS
-hdfs_path = "/demo.csv"
-df.write \
-    .format("csv") \
-    .mode("overwrite") \
-    .save(hdfs_path)
+        df = spark.read \
+                .format("jdbc") \
+                .option("driver", "com.mysql.cj.jdbc.Driver") \
+                .option("url", "jdbc:mysql://mysql-oltp:3306") \
+                .option("dbtable", "oltp.orderDetails") \
+                .option("user", "root") \
+                .option("password", "root") \
+                .load()
+        df.show()
+        df.write \
+                .format("parquet") \
+                .mode("overwrite") \
+                .save("hdfs://hadoop-namenode:9000/datalake/orderDetails.parquet")
 
-# Đóng SparkSession
-spark.stop()
+        print(spark.version)
+        spark.stop()
+    

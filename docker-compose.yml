@@ -2,11 +2,10 @@ version: '3.1'
 
 services:
   mysql-olpt:
-    image: mysql:latest
-    container_name: mysql-olpt
+    image: mysql:8.0.29
+    container_name: mysql-oltp
     environment:
       MYSQL_ROOT_PASSWORD: root
-      
     ports:
       - "3306:3306"
     volumes:
@@ -56,7 +55,8 @@ services:
       - datanode01-data:/hadoop/dfs/data
 
   spark-master:
-    image: spark-base
+    image: sparkbase
+    container_name: spark-master
     ports:
       - 9090:8081
       - 7077:7077
@@ -71,7 +71,8 @@ services:
     command: /bin/sh -c "/start-spark.sh"
 
   spark-worker-a:
-    image: spark-base
+    image: sparkbase
+    container_name: spark-worker-a
     ports:
       - 9091:8081
       - 7000:7000
