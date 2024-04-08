@@ -34,9 +34,12 @@ RUN mkdir -p $SPARK_LOG_DIR && \
 
 
 RUN cp $HADOOP_CONF_DIR/core-site.xml $SPARK_HOME/conf  &&\
-    cp $HADOOP_CONF_DIR/yarn-site.xml $SPARK_HOME/conf
+    cp $HADOOP_CONF_DIR/yarn-site.xml $SPARK_HOME/conf &&\
+    cp $HADOOP_CONF_DIR/hdfs-site.xml $SPARK_HOME/conf
 
 COPY /start-spark.sh /start-spark.sh
+COPY /spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
+COPY /hive-site.xml $SPARK_HOME/conf/hive-site.xml
 
 RUN chmod a+x /start-spark.sh
 
