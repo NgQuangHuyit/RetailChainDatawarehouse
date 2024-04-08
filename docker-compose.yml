@@ -10,7 +10,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./sql:/docker-entrypoint-initdb.d
+      - ./sql/oltpSchema.sql:/docker-entrypoint-initdb.d/otlpSchema.sql
       - mysql-olpt-data:/var/lib/mysql
     networks:
       - common
@@ -92,11 +92,34 @@ services:
       - common
     command: /bin/sh -c "/start-spark.sh"
 
+  postgres-metastore:
+    image: postgres:13
+    container_name: postgres-metastore
+    environment:
+      - POSTGRES_PASSWORD=root
+    ports:
+      - 5432:5432
+    volumes:
+      - ./sql/postgreInit.sql:/docker-entrypoint-initdb.d/postgreInit.sql
+      - postgres-metastore-data:/var/lib/postgresql/data
+    networks:
+      - common
+
+  hive:
+    build: 
+      context: ./containers/hive
+      dockerfile: Dockerfile
+    container_name: hive
+    depends_on:
+      - postgres-metastore
+    networks:
+      - common
     
 volumes:
   mysql-olpt-data:
   datanode01-data:
   namenode-data:
+  postgres-metastore-data:
 
 networks:
   common:
