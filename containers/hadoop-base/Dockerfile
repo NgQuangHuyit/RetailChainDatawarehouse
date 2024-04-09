@@ -18,8 +18,7 @@ RUN curl -fL ${HADOOP_URL} -o /tmp/hadoop-${hadoop_version}.tar.gz \
 
 RUN ln -s /opt/hadoop-${hadoop_version}/etc/hadoop /etc/hadoop  \
     && mkdir /opt/hadoop-${hadoop_version}/logs \
-    && mkdir /hadoop-data \
-    && mkdir /hadoop-data/dfs
+    && mkdir -p /hadoop-data/dfs/name \hadoop-data/dfs/data
 
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa \
     && cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys \
@@ -47,8 +46,16 @@ RUN echo "export HADOOP_SSH_OPTS=\"-o StrictHostKeyChecking=no\"" >> /etc/hadoop
 
 USER root
 
-COPY conf/core-site.xml ${HADOOP_CONF_DIR}/core-site.xml
-COPY conf/hdfs-site.xml ${HADOOP_CONF_DIR}/hdfs-site.xml
-COPY conf/mapred-site.xml ${HADOOP_CONF_DIR}/mapred-site.xml
-COPY conf/yarn-site.xml ${HADOOP_CONF_DIR}/yarn-site.xml
+COPY ./conf/core-site.xml ${HADOOP_CONF_DIR}/core-site.xml
+COPY ./conf/hdfs-site.xml ${HADOOP_CONF_DIR}/hdfs-site.xml
+COPY ./conf/mapred-site.xml ${HADOOP_CONF_DIR}/mapred-site.xml
+COPY ./conf/yarn-site.xml ${HADOOP_CONF_DIR}/yarn-site.xml
+COPY ./containers/hadoop-base/start-cluster.sh /start-cluster.sh
+RUN chmod a+x /start-cluster.sh
+
+COPY ./containers/hadoop-base/start.sh /start.sh
+COPY ./containers/hadoop-base/workers /etc/hadoop/workers
+
+RUN chmod a+x /start.sh
+
 

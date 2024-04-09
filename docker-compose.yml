@@ -23,9 +23,7 @@ services:
       - common
 
   hadoop-namenode:
-    build:
-      context: ./containers/hadoop-namenode
-      dockerfile: Dockerfile
+    image: hadoopbase:test
     container_name: hadoop-namenode
     hostname: hadoop-namenode
     ports:
@@ -40,11 +38,10 @@ services:
       - hadoop-datanode01
     volumes:
       - namenode-data:/hadoop/dfs/name
+    command: /bin/sh -c "/start-cluster.sh"
 
   hadoop-datanode01:
-    build: 
-      context: ./containers/hadoop-datanode
-      dockerfile: Dockerfile
+    image: hadoopbase:test
     container_name: hadoop-datanode01
     hostname: hadoop-datanode01
     environment:
@@ -53,13 +50,16 @@ services:
       - common
     volumes:
       - datanode01-data:/hadoop/dfs/data
+    command: /bin/sh -c "/start.sh"
 
   spark-master:
     image: sparkbase
     container_name: spark-master
+    hostname: spark-master
     ports:
       - 9090:8081
       - 7077:7077
+      - 18080:18080
     volumes:
       - ./apps:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-apps
       - ./data:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-data
@@ -73,6 +73,7 @@ services:
   spark-worker-a:
     image: sparkbase
     container_name: spark-worker-a
+    hostname: sparl-worker-a
     ports:
       - 9091:8081
       - 7000:7000
@@ -108,9 +109,12 @@ services:
 
   hive:
     build: 
-      context: ./containers/hive
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: /containers/hive/Dockerfile
     container_name: hive
+    hostname: hiveserver
+    ports:
+      - 10002:10002
     depends_on:
       - postgres-metastore
     networks:

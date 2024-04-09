@@ -1,8 +1,8 @@
 build-hadoopbase:
-	docker build -t hadoopbase:test -f ./containers/hadoopbase/Dockerfile ./containers/hadoopbase
+	docker build -t hadoopbase:test -f ./containers/hadoop-base/Dockerfile .
 
 build-sparkbase:
-	docker build -t sparkbase -f ./containers/spark/Dockerfile ./containers/spark
+	docker build -t sparkbase -f ./containers/spark/Dockerfile .
 up:
 	docker-compose up -d
 

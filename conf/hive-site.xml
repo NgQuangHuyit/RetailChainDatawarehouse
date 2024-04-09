@@ -23,5 +23,16 @@
     <description>the password for the DB instance</description>
   </property>
 
+  <property>
+    <name>hive.metastore.warehouse.dir</name>
+    <value>hdfs://hadoop-namenode:9000/user/hive/warehouse</value>
+    <description>location of default database for the warehouse</description>
+  </property>
+
+  <property>
+    <name>hive.metastore.schema.verification</name>
+    <value>false</value>
+    <description>Enforce metastore schema version consistency</description>
+  </property>
   
 </configuration>

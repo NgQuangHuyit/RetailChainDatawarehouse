@@ -12,7 +12,7 @@ ENV PATH=$PATH:$HIVE_HOME/bin
 ENV CLASSPATH=$CLASSPATH:$HADOOP_HOME/lib/*:$HIVE_HOME/lib/*
 
 
-COPY /hive-site.xml ${HIVE_HOME}/conf/hive-site.xml
+COPY ./conf/hive-site.xml ${HIVE_HOME}/conf/hive-site.xml
 
 
 WORKDIR $HIVE_HOME
