@@ -41,6 +41,8 @@ COPY /start-spark.sh /start-spark.sh
 COPY /spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
 COPY /hive-site.xml $SPARK_HOME/conf/hive-site.xml
 
+COPY /jars $SPARK_HOME/jars
+
 RUN chmod a+x /start-spark.sh
 
 CMD ["/start-spark.sh"]

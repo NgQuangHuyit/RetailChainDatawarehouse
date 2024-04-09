@@ -115,6 +115,18 @@ services:
       - postgres-metastore
     networks:
       - common
+
+  airflow:
+    build: 
+      context: ./containers/airflow
+      dockerfile: Dockerfile
+    container_name: airflow
+    ports:
+      - 8085:8080
+    volumes:
+      - ./dags:/opt/airflow/dags
+    networks:
+      - common
     
 volumes:
   mysql-olpt-data:

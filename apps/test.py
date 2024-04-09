@@ -6,7 +6,7 @@ if __name__ == "__main__":
         spark = SparkSession.builder \
                 .master("spark://spark-master:7077") \
                 .appName("Ingestion") \
-                .config("spark.jars", "mysql-connector-java-8.0.29.jar") \
+                .config("spark.hadoop.fs.block.size", "33554432") \
                 .getOrCreate()
 
         df = spark.read \
