@@ -36,6 +36,7 @@ services:
       - common
     depends_on:
       - hadoop-datanode01
+      - hadoop-datanode02
     volumes:
       - namenode-data:/hadoop/dfs/name
     command: /bin/sh -c "/start-cluster.sh"
@@ -45,54 +46,36 @@ services:
     container_name: hadoop-datanode01
     hostname: hadoop-datanode01
     environment:
-      - "HADOOP_MASTER=hadoopmaster"
+      - "HADOOP_MASTER=hadoop-namenode"
     networks:
       - common
     volumes:
       - datanode01-data:/hadoop/dfs/data
     command: /bin/sh -c "/start.sh"
+  
+  hadoop-datanode02:
+    image: hadoopbase:test
+    container_name: hadoop-datanode02
+    hostname: hadoop-datanode02
+    environment:
+      - "HADOOP_MASTER=hadoop-namenode"
+    networks:
+      - common
+    volumes:
+      - datanode02-data:/hadoop/dfs/data
+    command: /bin/sh -c "/start.sh"
 
-  spark-master:
-    image: sparkbase
-    container_name: spark-master
-    hostname: spark-master
+  spark-history-server:
+    build:
+      context: .
+      dockerfile: containers/spark-history-server/Dockerfile
+    container_name: spark-airflow
+    hostname: spark-airflow
     ports:
-      - 9090:8081
-      - 7077:7077
       - 18080:18080
-    volumes:
-      - ./apps:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-apps
-      - ./data:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-data
-    environment:
-      - SPARK_LOCAL_IP=spark-master
-      - SPARK_WORKLOAD=master
     networks:
       - common
-    command: /bin/sh -c "/start-spark.sh"
 
-  spark-worker-a:
-    image: sparkbase
-    container_name: spark-worker-a
-    hostname: sparl-worker-a
-    ports:
-      - 9091:8081
-      - 7000:7000
-    depends_on:
-      - spark-master
-    environment:
-      - SPARK_MASTER=spark://spark-master:7077
-      - SPARK_WORKER_CORES=1
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_DRIVER_MEMORY=1G
-      - SPARK_EXECUTOR_MEMORY=1G
-      - SPARK_WORKLOAD=worker
-      - SPARK_LOCAL_IP=spark-worker-a
-    volumes:
-      - ./apps:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-apps
-      - ./data:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-data
-    networks:
-      - common
-    command: /bin/sh -c "/start-spark.sh"
 
   postgres-metastore:
     image: postgres:13
@@ -110,7 +93,7 @@ services:
   hive:
     build: 
       context: .
-      dockerfile: /containers/hive/Dockerfile
+      dockerfile: containers/hive/Dockerfile
     container_name: hive
     hostname: hiveserver
     ports:
@@ -119,22 +102,24 @@ services:
       - postgres-metastore
     networks:
       - common
-
+  
   airflow:
-    build: 
-      context: ./containers/airflow
-      dockerfile: Dockerfile
+    build:
+      context: .
+      dockerfile: containers/airflow-spark/Dockerfile
     container_name: airflow
+    hostname: airflow
     ports:
-      - 8085:8080
+      - 8081:8080
     volumes:
       - ./dags:/opt/airflow/dags
     networks:
       - common
-    
+
 volumes:
   mysql-olpt-data:
   datanode01-data:
+  datanode02-data:
   namenode-data:
   postgres-metastore-data:
 

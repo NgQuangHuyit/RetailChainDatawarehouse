@@ -19,6 +19,14 @@ service ssh start
 
 $HADOOP_HOME/sbin/start-all.sh
 
+SPARK_LOGS_DIR="/spark-logs"
+
+hdfs dfs -test -d $SPARK_LOGS_DIR
+if [ $? != 0 ]; then
+  echo "Creating HDFS directory: $SPARK_LOGS_DIR"
+  hdfs dfs -mkdir -p $SPARK_LOGS_DIR
+fi
+
 # Keep the container running
 while true; do
   sleep 60

@@ -17,3 +17,6 @@ startHiveServer2:
 
 startSparkHistoryServer:
 	docker exec spark-master start-history-server.sh
+
+initmysqldata:
+	cd datagenerator && python3 main.py
