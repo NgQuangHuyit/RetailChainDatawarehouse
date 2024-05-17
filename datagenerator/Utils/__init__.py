@@ -1,7 +1,6 @@
 from datetime import timedelta
 from datetime import date
 import random
-import pandas as pd
 import csv
 
 def randomDateFromTo(start: date, end: date):

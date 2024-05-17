@@ -1,5 +1,29 @@
 version: '3.1'
 
+x-airflow-common:
+  &airflow-common
+  build:
+    context: .
+    dockerfile: containers/airflow-spark/Dockerfile
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres-metastore/airflow
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW_CONN_POSTGRES_DEFAULT: postgres://airflow:airflow@postgres-metastore:5432/airflow
+  networks:
+    - common
+
+  volumes:
+    - ./dags:/opt/airflow/dags
+  user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
+  depends_on:
+    postgres-metastore:
+      condition: service_healthy
+
 services:
   mysql-olpt:
     image: mysql:8.0.29
@@ -52,7 +76,7 @@ services:
     volumes:
       - datanode01-data:/hadoop/dfs/data
     command: /bin/sh -c "/start.sh"
-  
+
   hadoop-datanode02:
     image: hadoopbase:test
     container_name: hadoop-datanode02
@@ -84,6 +108,11 @@ services:
       - POSTGRES_PASSWORD=root
     ports:
       - 5432:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "airflow" ]
+      interval: 5s
+      retries: 5
+    restart: always
     volumes:
       - ./sql/postgreInit.sql:/docker-entrypoint-initdb.d/postgreInit.sql
       - postgres-metastore-data:/var/lib/postgresql/data
@@ -91,7 +120,7 @@ services:
       - common
 
   hive:
-    build: 
+    build:
       context: .
       dockerfile: containers/hive/Dockerfile
     container_name: hive
@@ -102,19 +131,64 @@ services:
       - postgres-metastore
     networks:
       - common
-  
-  airflow:
-    build:
-      context: .
-      dockerfile: containers/airflow-spark/Dockerfile
-    container_name: airflow
-    hostname: airflow
+
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: webserver
+    command: webserver
     ports:
       - 8081:8080
-    volumes:
-      - ./dags:/opt/airflow/dags
-    networks:
-      - common
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--fail",
+          "http://localhost:8080/health"
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: scheduler
+    command: scheduler
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"'
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+
+#  airflow:
+#    build:
+#      context: .
+#      dockerfile: containers/airflow-spark/Dockerfile
+#    container_name: airflow
+#    hostname: airflow
+#    ports:
+#      - 8081:8080
+#    volumes:
+#      - ./dags:/opt/airflow/dags
+#    networks:
+#      - common
 
 volumes:
   mysql-olpt-data:

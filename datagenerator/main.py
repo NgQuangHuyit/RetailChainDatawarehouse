@@ -1,4 +1,3 @@
-from mysql.connector import MySQLConnection
 from contextlib import contextmanager
 from config import read_config_file
 from tqdm import tqdm
@@ -440,8 +439,8 @@ if __name__ == "__main__":
     loadCsvToDatabase("./StaticDataset/addressTbl.csv", insertAddress)
 
     genPromtionData(1000)
-    genCustomerData(10000, chunk_size=100000)
+    genCustomerData(100000, chunk_size=100000)
     genBranchesData()
     genEmployeeData()
-    genOrdersData(10000, chunks_size=100000)
+    genOrdersData(200000, chunks_size=100000)
     genOrderDetailsData(chunk_size=100000)
