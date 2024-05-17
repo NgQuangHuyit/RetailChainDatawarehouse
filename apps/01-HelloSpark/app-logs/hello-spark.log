@@ -1,3 +1,0 @@
-24/02/22 03:15:01 INFO spark application: Starting HelloSpark
-24/02/22 03:15:05 INFO spark application: [[United States, 4], [Canada, 2], [United Kingdom, 1]]
-24/02/22 03:15:05 INFO spark application: Finished HelloSpark

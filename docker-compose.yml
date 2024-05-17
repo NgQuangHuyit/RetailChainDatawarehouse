@@ -95,6 +95,8 @@ services:
       dockerfile: containers/spark-history-server/Dockerfile
     container_name: spark-airflow
     hostname: spark-airflow
+    volumes:
+      - ./apps:/opt/spark-3.4.2-bin-hadoop3-scala2.13/spark-apps
     ports:
       - 18080:18080
     networks:
