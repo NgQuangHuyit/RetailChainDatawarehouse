@@ -60,7 +60,7 @@ def genPromtionData(records_number=100):
             ads_media_type = fake.adsMediaTypes()
             promotion_type = fake.promotionType()
             cursor.execute("""
-                           INSERT INTO promotions 
+                           INSERT INTO promotion
                             (
                                 promotionID, 
                                 promotionName,
@@ -102,7 +102,7 @@ def genCustomerData(records_number=1000, chunk_size=1000):
     for i in tqdm(range(0, len(ls), chunk_size)):
         with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
             cursor.executemany("""
-                           INSERT INTO customers (
+                           INSERT INTO customer (
                                 customerID,
                                 firstName,
                                 lastName,
@@ -128,7 +128,7 @@ def genBranchesData(records_number=600):
             email = fake.email()
             addressID = _ + 1
             cursor.execute("""
-                           INSERT INTO branches (
+                           INSERT INTO branch (
                                 branchID,
                                 branchName,
                                 phone,
@@ -150,7 +150,7 @@ def genBranchesData(records_number=600):
 fake.add_provider(EmployeeProvider)
 
 def genEmployeeData():
-    branchIDs= [rows[0] for rows in readTableColumns("branches", ["branchID"])]
+    branchIDs= [rows[0] for rows in readTableColumns("branch", ["branchID"])]
     cnt = 1
     with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
         for branchID in tqdm(branchIDs):
@@ -165,7 +165,7 @@ def genEmployeeData():
             managerID = None
             branchID = branchID
             cursor.execute("""
-                           INSERT INTO employees (
+                           INSERT INTO employee (
                                 employeeID,
                                 firstName,
                                 lastName,
@@ -208,7 +208,7 @@ def genEmployeeData():
                 branchID = branchID
                 ls.append(tuple([id, fname, lname, email, phone_number, position, hireDate.strftime("%Y-%m-%d"), managerID, branchID]))
             cursor.executemany("""
-                           INSERT INTO employees (
+                           INSERT INTO employee (
                                 employeeID,
                                 firstName,
                                 lastName,
@@ -234,10 +234,10 @@ def genEmployeeData():
     return ls
 
 def genOrdersData(records_number=1000, chunks_size=1000):
-    customerIDs = [row[0] for row in readTableColumns("customers", ["customerID"])]
-    saleEmpIDs = [row[0] for row in readTableColumns("employees", ["employeeID"])]
-    branchIDs = [row[0] for row in readTableColumns("branches", ["branchID"])]
-    promotionIDs = [row[0] for row in readTableColumns("promotions", ["promotionID"])]
+    customerIDs = [row[0] for row in readTableColumns("customer", ["customerID"])]
+    saleEmpIDs = [row[0] for row in readTableColumns("employee", ["employeeID"])]
+    branchIDs = [row[0] for row in readTableColumns("branch", ["branchID"])]
+    promotionIDs = [row[0] for row in readTableColumns("promotion", ["promotionID"])]
     promotionIDs = promotionIDs + [None] * len(promotionIDs)
     
     orders = []
@@ -248,14 +248,14 @@ def genOrdersData(records_number=1000, chunks_size=1000):
         customerID = random.choice(customerIDs)
         saleEmpID = random.choice(saleEmpIDs)
         branchID = random.choice(branchIDs)
-        orderDate = randomDateFromTo(start=date(2021, 1, 1), end=date(2023, 12, 31))
+        orderDate = randomDateFromTo(start=date(2023, 1, 1), end=date(2023, 1, 5))
         totalAmt = 0
         orders.append(tuple([orderID, promotionID, customerID, saleEmpID, branchID, orderDate, totalAmt]))
     print("Inserting Orders Data")
     for i in tqdm(range(0, len(orders), chunks_size)):
         with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
             cursor.executemany("""
-                               INSERT INTO saleOrders (
+                               INSERT INTO saleOrder (
                                     orderID,
                                     promotionID,
                                     customerID,
@@ -279,10 +279,10 @@ def genOrdersData(records_number=1000, chunks_size=1000):
 
 def genOrderDetailsData(chunk_size=1000):
     orderDetails = []
-    productIDs = [row[0] for row in readTableColumns("products", ["productID"])]
+    productIDs = [row[0] for row in readTableColumns("product", ["productID"])]
     productPrice = {}
-    orderIDs = [row[0] for row in readTableColumns("saleOrders", ["orderID"])]
-    for row in readTableColumns("products", ["productID",  "sellingPrice"]):
+    orderIDs = [row[0] for row in readTableColumns("saleOrder", ["orderID"])]
+    for row in readTableColumns("product", ["productID",  "sellingPrice"]):
         productPrice[row[0]] = float(row[1])
     orderTotal = []
     for orderID in tqdm(orderIDs):
@@ -300,7 +300,7 @@ def genOrderDetailsData(chunk_size=1000):
     for i in tqdm(range(0, len(orderDetails), chunk_size)):
         with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
             cursor.executemany("""
-                               INSERT INTO orderDetails (
+                               INSERT INTO orderDetail (
                                     orderDetailID,
                                     orderID,
                                     productID,
@@ -320,7 +320,7 @@ def genOrderDetailsData(chunk_size=1000):
     for i in tqdm(range(0, len(orderTotal), chunk_size)):
         with DatabaseConnector(**read_config_file()).managed_cursor() as cursor:
             cursor.executemany("""
-                               UPDATE saleOrders
+                               UPDATE saleOrder
                                SET totalAmount = %s
                                WHERE orderID = %s
                                """,orderTotal[i:i+chunk_size])
@@ -364,7 +364,7 @@ insertCategory = """
     """
 
 insertProduct = """
-    INSERT INTO products (
+    INSERT INTO product (
         productID,
         productName,
         productDescription,

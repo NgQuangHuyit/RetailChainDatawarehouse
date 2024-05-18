@@ -45,7 +45,7 @@ CREATE TABLE category (
 
 AlTER TABLE category ADD CONSTRAINT FOREIGN KEY (parentCategoryID) REFERENCES category(categoryID);
 
-CREATE TABLE products (
+CREATE TABLE product (
 	productID VARCHAR(10) PRIMARY KEY,
 	productName VARCHAR(100),
 	productDescription TEXT,
@@ -60,7 +60,7 @@ CREATE TABLE products (
 	FOREIGN KEY (colorID) REFERENCES color(colorID)
 );
 
-CREATE TABLE customers (
+CREATE TABLE customer (
 	customerID VARCHAR(20) PRIMARY KEY,
 	firstName VARCHAR(50),
 	lastName VARCHAR(50),
@@ -70,7 +70,7 @@ CREATE TABLE customers (
     FOREIGN KEY (cityID) REFERENCES city(cityID)
 );
 
-CREATE TABLE promotions (
+CREATE TABLE promotion (
 	promotionID VARCHAR(10) PRIMARY KEY,
 	promotionName VARCHAR(50),
 	promotionDescription TEXT,
@@ -81,7 +81,7 @@ CREATE TABLE promotions (
 );
 
 
-CREATE TABLE branches (
+CREATE TABLE branch (
 	branchID VARCHAR(10) PRIMARY KEY,
 	branchName VARCHAR(50),
 	phone VARCHAR(40),
@@ -91,7 +91,7 @@ CREATE TABLE branches (
 );
 
 
-CREATE TABLE employees (
+CREATE TABLE employee (
 	employeeID VARCHAR(10) PRIMARY KEY,
 	firstName VARCHAR(50),
 	lastName VARCHAR(50),
@@ -101,11 +101,11 @@ CREATE TABLE employees (
 	hireDate DATE,
 	managerID VARCHAR(10),
     branchID VARCHAR(10),
-	FOREIGN KEY (branchID) REFERENCES branches(branchID),
-	FOREIGN KEY (managerID) REFERENCES employees(employeeID)
+	FOREIGN KEY (branchID) REFERENCES branch(branchID),
+	FOREIGN KEY (managerID) REFERENCES employee(employeeID)
 );
 
-CREATE TABLE saleOrders (
+CREATE TABLE saleOrder (
 	orderID VARCHAR(30) PRIMARY KEY,
 	promotionID VARCHAR(10),
 	customerID VARCHAR(20),
@@ -113,13 +113,13 @@ CREATE TABLE saleOrders (
 	branchID VARCHAR(10),
 	orderDate DATE,
 	totalAmount DECIMAL(25,2),
-	FOREIGN KEY (promotionID) REFERENCES promotions(promotionID),
-	FOREIGN KEY (customerID) REFERENCES customers(customerID),
-	FOREIGN KEY (employeeID) REFERENCES employees(employeeID),
-	FOREIGN KEY (branchID) REFERENCES branches(branchID)
+	FOREIGN KEY (promotionID) REFERENCES promotion(promotionID),
+	FOREIGN KEY (customerID) REFERENCES customer (customerID),
+	FOREIGN KEY (employeeID) REFERENCES employee(employeeID),
+	FOREIGN KEY (branchID) REFERENCES branch(branchID)
 );
 
-CREATE TABLE orderDetails (
+CREATE TABLE orderDetail (
 	orderDetailID INT PRIMARY KEY,
 	orderID VARCHAR(30),
 	productID VARCHAR(10),
@@ -127,7 +127,7 @@ CREATE TABLE orderDetails (
 	discount DECIMAL(5,2),
 	unitPrice DECIMAL(15,2),
 	subTotal DECIMAL(20,2),
-	FOREIGN KEY (orderID) REFERENCES saleOrders(orderID),
-	FOREIGN KEY (productID) REFERENCES products(productID)
+	FOREIGN KEY (orderID) REFERENCES saleOrder(orderID),
+	FOREIGN KEY (productID) REFERENCES product(productID)
 );
 

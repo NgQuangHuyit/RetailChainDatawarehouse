@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 
 def create_tables(
         spark : SparkSession,
-        storage_path : str = 'hdfs://hadoop-namenode:9000/user/hive/warehouse',
+        storage_path : str = None,
         database: str = 'bronze',
 ):
     # Create database
@@ -12,9 +12,9 @@ def create_tables(
     spark.sql("show databases").show()
 
     # Create products table
-    spark.sql(f"DROP TABLE IF EXISTS {database}.products")
+    spark.sql(f"DROP TABLE IF EXISTS {database}.product")
     spark.sql(f"""
-    CREATE TABLE {database}.products (
+    CREATE TABLE {database}.product (
         product_id STRING, 
         product_name STRING,
         product_description STRING,
@@ -26,9 +26,8 @@ def create_tables(
         color_id STRING,
         category_id STRING)
         USING PARQUET
-        LOCATION '{storage_path}/products'
+        {f"LOCATION {storage_path}/product" if storage_path else ""}
     """)
-
     # Create address table
 
     spark.sql(f"DROP TABLE IF EXISTS {database}.address")
@@ -41,20 +40,20 @@ def create_tables(
         city_id SMALLINT,
         postal_code STRING)
         USING PARQUET
-        LOCATION '{storage_path}/address'
+       {f"LOCATION {storage_path}/address" if storage_path else ""}
     """)
 
     # Create branches table
     spark.sql(f"DROP TABLE IF EXISTS {database}.branch")
     spark.sql(f"""
-    CREATE TABLE {database}.branches (
+    CREATE TABLE {database}.branch (
         branch_id STRING,
         branch_name STRING,
         phone STRING, 
         email STRING,
         address_id SMALLINT)
         USING PARQUET
-        LOCATION '{storage_path}/branch'
+        {f"LOCATION {storage_path}/branch" if storage_path else ""}
     """)
 
     # Create category table
@@ -65,7 +64,7 @@ def create_tables(
         category_name STRING,
         parent_category_id STRING)
         USING PARQUET
-        LOCATION '{storage_path}/category'
+        {f"LOCATION {storage_path}/category" if storage_path else ""}
     """)
 
     spark.sql(f"DROP TABLE IF EXISTS {database}.city")
@@ -75,7 +74,7 @@ def create_tables(
         city_name STRING,
         country_id SMALLINT)
         USING PARQUET
-        LOCATION '{storage_path}/city'
+        {f"LOCATION {storage_path}/city" if storage_path else ""}
     """)
 
     # Create color table
@@ -87,7 +86,7 @@ def create_tables(
         rgb_code STRING,
         hex_code STRING)
         USING PARQUET
-        LOCATION '{storage_path}/color'
+        {f"LOCATION {storage_path}/color" if storage_path else ""}
     """)
 
     # Create country table
@@ -97,7 +96,7 @@ def create_tables(
         country_id SMALLINT,
         country_name STRING)
         USING PARQUET
-        LOCATION '{storage_path}/country'
+        {f"LOCATION {storage_path}/country" if storage_path else ""}
     """)
 
     # Create customer table
@@ -111,7 +110,7 @@ def create_tables(
         email STRING,
         city_id SMALLINT)
         USING PARQUET
-        LOCATION '{storage_path}/customer'
+        {f"LOCATION {storage_path}/customer" if storage_path else ""}
     """)
 
     # Create employee table
@@ -127,7 +126,7 @@ def create_tables(
         hire_date DATE,
         branch_id STRING)
         USING PARQUET
-        LOCATION '{storage_path}/employee'
+        {f"LOCATION {storage_path}/employee" if storage_path else ""}
     """)
 
     # Create orderDetail table
@@ -142,7 +141,7 @@ def create_tables(
         unit_price DOUBLE,
         sub_total DOUBLE)
         USING PARQUET
-        LOCATION '{storage_path}/orderDetail'
+        {f"LOCATION {storage_path}/orderDetail" if storage_path else ""}
     """)
 
     # Create order table
@@ -157,7 +156,7 @@ def create_tables(
         order_date DATE,
         total_amount DOUBLE)
         USING PARQUET
-        LOCATION '{storage_path}/order'
+        {f"LOCATION {storage_path}/order" if storage_path else ""}
     """)
 
     # Create promotion table
@@ -172,14 +171,16 @@ def create_tables(
         adsMediaType STRING,
         promotion_type STRING)
         USING PARQUET
-        LOCATION '{storage_path}/promotion'
+        {f"LOCATION {storage_path}/promotion" if storage_path else ""}
     """)
+    spark.sql("show tables").show()
 
 if __name__ == "__main__":
     spark = SparkSession.builder \
         .appName("Create Tables") \
         .config("spark.executor.core", "1") \
         .config("spark.executor.instances", "1") \
+        .enableHiveSupport() \
         .master("yarn") \
         .getOrCreate()
     spark.sql("show databases").show()
