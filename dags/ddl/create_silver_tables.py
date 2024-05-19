@@ -71,6 +71,26 @@ def create_tables(spark: SparkSession, schema: str = 'silver'):
         current_flag INT)
     """)
 
+    spark.sql(f"DROP TABLE IF EXISTS {schema}.dim_product")
+    spark.sql(f"""
+    CREATE TABLE {schema}.dim_product (
+        product_sk INT,
+        product_id STRING,
+        product_name STRING,
+        original_price DECIMAL(10, 2),
+        selling_price DECIMAL(10, 2),
+        avail STRING,
+        product_size STRING,
+        product_line STRING,
+        color_name STRING,
+        category_name STRING,
+        parent_category_name STRING,
+        effective_date DATE,
+        expiration_date DATE,
+        current_flag INT)
+    """)
+
+
 if __name__ == "__main__":
     spark = SparkSession.builder \
         .appName("Create Silver Tables") \
