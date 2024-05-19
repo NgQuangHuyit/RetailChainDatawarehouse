@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
-from airflow.providers.apache.spark.operators.spark_jdbc import SparkJDBCOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.empty import EmptyOperator
 from datetime import datetime
 
 dag = DAG("daily_pipeline", start_date=datetime(2021, 1, 1), schedule_interval="@once")
@@ -57,5 +58,25 @@ fct_sale = SparkSubmitOperator(
     dag=dag
 )
 
+fct_promotion_coverage = SparkSubmitOperator(
+    application='',
+    task_id='get_fct_promotion_coverage',
+    dag=dag
+)
+
+silver_layer_complete = EmptyOperator(
+    task_id='silver_layer_complete',
+    dag=dag
+)
+
+get_gold_layer = EmptyOperator(
+    task_id='get_gold_layer',
+    dag=dag
+)
 
 ingest_to_bronze_layer >> [dim_customer, dim_product, dim_employee, dim_branch, dim_promotion] >> fct_sale
+
+[dim_product, dim_promotion, dim_branch] >> fct_promotion_coverage
+
+[fct_sale, fct_promotion_coverage] >> silver_layer_complete >> get_gold_layer
+
