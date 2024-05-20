@@ -90,6 +90,21 @@ def create_tables(spark: SparkSession, schema: str = 'silver'):
         current_flag INT)
     """)
 
+    spark.sql(f"DROP TABLE IF EXISTS {schema}.fct_sale")
+    spark.sql(f"""
+        CREATE TABLE {schema}.fct_sale (
+            date_key INT,
+            employee_sk INT,
+            customer_sk INT,
+            product_sk INT,
+            branch_sk INT,
+            promotion_sk INT,
+            quantity INT,
+            discount DECIMAL(10, 2),
+            unit_price DECIMAL(15, 2),
+            sub_total DECIMAL(20, 2)
+        )
+    """)
 
 if __name__ == "__main__":
     spark = SparkSession.builder \

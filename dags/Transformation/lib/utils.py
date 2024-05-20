@@ -1,9 +1,7 @@
 import configparser
 from pyspark import SparkConf
 from pyspark.sql.dataframe import DataFrame
-from pyspark.sql.functions import md5, concat, col, lit, when, current_date, to_date, row_number
-from pyspark.sql.window import Window
-from .constant import SCHEMA, EOW_DATE, DATE_FORMAT
+from pyspark.sql.functions import md5, concat, col, lit
 
 
 def get_spark_app_config():

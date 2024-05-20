@@ -2,14 +2,20 @@ from lib.scdhandler import SCDHandler
 from lib.utils import get_spark_app_config
 from lib.constant import SCHEMA, EOW_DATE, DATE_FORMAT
 from pyspark.sql import SparkSession
+from lib.logger import Logger
 
 if __name__ == "__main__":
+    logger = Logger("Get dim branch")
+
+    logger.info("Creating dim branch")
+
     spark = SparkSession.builder \
         .appName("Get dim branch") \
         .config(conf=get_spark_app_config()) \
         .enableHiveSupport() \
         .getOrCreate()
 
+    logger.info("Reading data from bronze")
     branch_df = spark.sql("select * from bronze.branch")
     address_df = spark.sql("select * from bronze.address")
 
@@ -17,6 +23,7 @@ if __name__ == "__main__":
 
     country_df = spark.sql("select * from bronze.country")
 
+    logger.info("Getting current and history data from dim branch table")
     dim_branch_current = branch_df.join(address_df, branch_df.addressID == address_df.addressID, "left") \
         .join(city_df, address_df.cityID == city_df.cityID, "left") \
         .join(country_df, city_df.countryID == country_df.countryID, "left") \
@@ -29,6 +36,7 @@ if __name__ == "__main__":
 
     dim_branch_history = spark.sql(f"select * from {SCHEMA}.dim_branch")
 
+    logger.info("Enriching data to SCD2")
     scdHandler = SCDHandler(EOW_DATE, DATE_FORMAT)
     scdHandler.enrich_to_scd2(
         dim_branch_current,
@@ -37,6 +45,7 @@ if __name__ == "__main__":
         "branch_id",
         "branch_sk").createOrReplaceTempView("dim_branch_final")
 
+    logger.info("Writing data to dim branch table")
     spark.sql(f"select * from dim_branch_final") \
         .write \
         .mode("overwrite") \
