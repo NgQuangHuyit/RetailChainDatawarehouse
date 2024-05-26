@@ -90,6 +90,36 @@ def create_tables(spark: SparkSession, schema: str = 'silver'):
         current_flag INT)
     """)
 
+    spark.sql(f"DROP TABLE IF EXISTS {schema}.dim_date")
+    spark.sql(f"""
+        CREATE TABLE {schema}.dim_date (
+        date_key INT,
+        full_date DATE,
+        day_of_week INT,
+        day_num_in_month INT,
+        day_num_overall INT,
+        day_name STRING,
+        day_abbr STRING,
+        weekend_flag STRING,
+        week_num_in_year INT,
+        week_num_overall INT,
+        week_begin_date DATE,
+        week_begin_date_key INT,
+        month INT,
+        month_num_overall INT,
+        month_name STRING,
+        month_abbr STRING,
+        quarter INT,
+        year INT,
+        year_month INT,
+        fiscal_month INT,
+        fiscal_quarter INT,
+        fiscal_year INT,
+        month_end_flag STRING,
+        day_year_ago DATE
+        )
+    """)
+
     spark.sql(f"DROP TABLE IF EXISTS {schema}.fct_sale")
     spark.sql(f"""
         CREATE TABLE {schema}.fct_sale (

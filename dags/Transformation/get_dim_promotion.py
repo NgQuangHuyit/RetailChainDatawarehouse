@@ -1,4 +1,3 @@
-from pyspark.sql.functions import concat, col, lit
 from lib.scdhandler import SCDHandler
 from lib.utils import get_spark_app_config
 from lib.constant import SCHEMA, EOW_DATE, DATE_FORMAT

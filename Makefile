@@ -20,3 +20,14 @@ startSparkHistoryServer:
 
 initmysqldata:
 	cd datagenerator && python3 main.py
+
+
+loadDimDate:
+	docker cp data/dim_date.csv hadoop-namenode:/tmp
+	docker exec hadoop-namenode hdfs dfs -rm -r /tmp/dim_date.csv
+	docker exec hadoop-namenode hdfs dfs -put /tmp/dim_date.csv /tmp
+	docker exec scheduler spark-submit --master yarn --deploy-mode client /opt/airflow/dags/Transformation//get_dim_date.py
+
+ddl-silver:
+	docker exec scheduler spark-submit --master yarn --deploy-mode client /opt/airflow/dags/ddl/create_silver_tables.py
+

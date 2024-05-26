@@ -50,6 +50,15 @@ dim_employee = SparkSubmitOperator(
     conn_id='spark_default',
     dag=dag
 )
+
+get_fact_sale = SparkSubmitOperator(
+    application='/opt/airflow/dags/Transformation/get_fact_order.py',
+    task_id='get_fct_sale',
+    conn_id='spark_default',
+    dag=dag
+
+)
+
 #
 # fct_sale = SparkSubmitOperator(
 #     application='/opt/airflow/dags/Transformation/get_fct_sale.py',
@@ -74,5 +83,5 @@ dim_employee = SparkSubmitOperator(
 #     dag=dag
 # )
 
-ingest_to_bronze_layer >> [dim_customer, dim_product, dim_employee, dim_branch, dim_promotion]
+ingest_to_bronze_layer >> [dim_customer, dim_product, dim_employee, dim_branch, dim_promotion] >> get_fact_sale
 
