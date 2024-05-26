@@ -176,6 +176,16 @@ services:
       _AIRFLOW_WWW_USER_CREATE: 'true'
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+  dashboard:
+    image: metabase/metabase
+    container_name: dashboard
+    environment:
+      MB_DB_CONNECTION_TIMEOUT_MS: 30000
+      MB_DB_SOCKET_TIMEOUT_MS: 60000
+    ports:
+      - "3000:3000"
+    networks:
+      - common
 
 #  airflow:
 #    build:
