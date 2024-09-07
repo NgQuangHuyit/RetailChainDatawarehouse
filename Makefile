@@ -24,8 +24,8 @@ initmysqldata:
 
 loadDimDate:
 	docker cp data/dim_date.csv hadoop-namenode:/tmp
-	docker exec hadoop-namenode hdfs dfs -rm -r /tmp/dim_date.csv
-	docker exec hadoop-namenode hdfs dfs -put /tmp/dim_date.csv /tmp
+	docker exec hadoop-namenode hdfs dfs -mkdir /tmp
+	docker exec hadoop-namenode hdfs dfs -put /tmp/dim_date.csv /tmp/dim_date.csv
 	docker exec scheduler spark-submit --master yarn --deploy-mode client /opt/airflow/dags/Transformation//get_dim_date.py
 
 ddl-silver:

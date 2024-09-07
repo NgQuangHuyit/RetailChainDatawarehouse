@@ -33,6 +33,8 @@ if __name__ == "__main__":
     parser.add_argument("--date-format", help="", default="%Y-%m-%d", type=str)
     args = parser.parse_args()
 
+    print("---------------------------------------------------------")
+    print(f"args: {args}")
     ingestion_date = ""
     if args.ingestion_date == "":
         ingestion_date = datetime.strptime(args.ingestion_date, args.date_format)
@@ -42,7 +44,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         exit(1)
-
+    print("---------------------------------------------------------")
+    print(f"Ingestion date: {ingestion_date}")
     Bronze_Tables = {
         "address": {
             "source_table": "oltp.address",

@@ -442,5 +442,5 @@ if __name__ == "__main__":
     genCustomerData(100000, chunk_size=100000)
     genBranchesData()
     genEmployeeData()
-    genOrdersData(200000, chunks_size=100000)
+    genOrdersData(300000, chunks_size=100000)
     genOrderDetailsData(chunk_size=100000)

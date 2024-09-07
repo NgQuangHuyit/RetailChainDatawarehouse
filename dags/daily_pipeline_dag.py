@@ -4,14 +4,23 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
 from datetime import datetime
 
-dag = DAG("daily_pipeline", start_date=datetime(2021, 1, 1), schedule_interval="@once")
+dag = DAG("daily_pipeline",
+          start_date=datetime(2023, 1, 1),
+          end_date=datetime(2023, 1, 5),
+          default_args={
+                'owner': 'airflow',
+                'retries': 1,
+                'depends_on_past': True,
+          },
+          schedule_interval="@daily",
+          max_active_runs=1)
 
 
 ingest_to_bronze_layer = SparkSubmitOperator(
     application='/opt/airflow/dags/Ingestion/ingestion.py',
     task_id='ingest_to_bronze_layer',
     conn_id='spark_default',
-    application_args=['--ingestion-date', '2023-01-01'],
+    application_args=['--ingestion-date', '{{ ds }}'],
     dag=dag
 )
 
