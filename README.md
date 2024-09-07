@@ -2,7 +2,7 @@
 
 
 ## Project Overview
-<img height="500" src="images/image_01.png" width="800"/>
+<img height="500" src="images/system-architecture.png" width="800"/>
 
 ## Prerequisites
 Docker
@@ -20,11 +20,11 @@ Docker
 
 ### Source database schema:
 
-<img style="background-color: azure" src="images/source-db-schema.png" title="source database schema"/>
+<img src="images/source-db-schema.png"/>
 
 ### Star Schema:
 
-<img style="background-color: azure" src="images/start-schema.png" title="star schema" alt="star schema"/>
+<img src="images/start-schema.png"/>
 
 ## Getting Started
 
