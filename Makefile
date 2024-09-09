@@ -15,9 +15,6 @@ initHiveMetastore:
 startHiveServer2:
 	docker exec hive hiveserver2
 
-startSparkHistoryServer:
-	docker exec spark-master start-history-server.sh
-
 initmysqldata:
 	cd datagenerator && python3 main.py
 
@@ -31,3 +28,4 @@ loadDimDate:
 ddl-silver:
 	docker exec scheduler spark-submit --master yarn --deploy-mode client /opt/airflow/dags/ddl/create_silver_tables.py
 
+setup: initHiveMetastore initmysqldata ddl-silver loadDimDate

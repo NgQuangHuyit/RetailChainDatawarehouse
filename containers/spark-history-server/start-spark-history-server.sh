@@ -9,5 +9,12 @@ while true; do
 done
 
 while true; do
+  echo "Starting Thift Server"
+  start-thriftserver.sh
+  if [ $? -eq 0 ]; then
+    break
+  fi
+
+while true; do
     sleep 60
 done
