@@ -5,7 +5,8 @@
 <img height="500" src="images/system-architecture.png" width="800"/>
 
 ## Prerequisites
-Docker
+- Docker
+- Python 3.9 or later
 
 ## Technologies Used
 - Python
@@ -27,6 +28,8 @@ Docker
 <img src="images/start-schema.png"/>
 
 ## Getting Started
+
+### Infrastructure setup:
 
 1. Clone project repository
 
@@ -52,34 +55,45 @@ make build-hadoopbase
 make up && make setup
 ```
 
-5. Setup Airflow
+### Airflow Setup
 
-    Come to http://localhost:8081 to access Airflow web UI and login with:
+Come to http://localhost:8081 to access Airflow web UI and login with:
 * username: airflow
 * password: airflow
 
-    Trigger the DAG
+Go to Admin -> Connections and create a new spark connection with the following values:
 
-    Click on the `daily_pipeline` and click on the `Trigger DAG` button to start the DAG.
-    ![](/images/airflow1.png)
-6. Setup Metabase Dashboard
+![](images/aiflow2.png)
 
-    Come to http://localhost:4000 to access Metabase web UI and register new account.
-    Setup Spark Thrift Server connection to Metastore:
+Come to Dags tab and click on the trigger button on `daily_pipeline` dag to run the pipeline. 
 
-    Access dashboad:
-    ![](/images/dashboard1.png)
-    ![](images/dashboard2.png)
-    ![](images/dashboard3.png)
+![](images/airflow1.png)
+
+### Metabase Dashboard
+
+Start Spark Thrift Server:
+
+```bash
+make start-thift
+```
+
+Come to http://localhost:4000 to access Metabase web UI and register new account.
+    
+Setup Spark Thrift Server connection to Metabase:
+
+Access dashboad:
+
+![](/images/dashboard1.png)
+
+![](images/dashboard2.png)
+
+![](images/dashboard3.png)
     
 
-## Access Service
-
-1. Airflow Web UI
-    http://localhost:8081
-2. Browser HDFS file
+### Others Service
+- Browser HDFS file:
     http://localhost:9870
-3. Spark History Server
+- Spark History Server:
     http://localhost:18080
-4. Metabase Dashboard
-    http://localhost:3000
+- Hadoop Yarn Web UI:
+    http://localhost:8088

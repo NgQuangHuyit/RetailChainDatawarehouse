@@ -28,4 +28,7 @@ loadDimDate:
 ddl-silver:
 	docker exec scheduler spark-submit --master yarn --deploy-mode client /opt/airflow/dags/ddl/create_silver_tables.py
 
+start-spark-thrift-sever:
+	docker exec contands start-thift-server.sh
+
 setup: initHiveMetastore initmysqldata ddl-silver loadDimDate
